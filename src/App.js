@@ -30,14 +30,14 @@ const App = () => {
       graphPlotted: false
     }
   });
-  console.log("state", state);
+
   return (
     <div className="App">
       <header
         style={{
           fontSize: "24px",
           background: "#d2baf7",
-          padding: 16,
+          padding: 10,
           position: "fixed",
           width: "100%"
         }}
@@ -62,17 +62,25 @@ const App = () => {
         </div>
         <div
           style={{
-            margin: "16px 16px 56px 8px",
+            margin: "16px 0px 56px 8px",
             flexGrow: "2"
           }}
         >
           <div
             style={{
-              width: "80%",
-              margin: "auto"
+              width: "90%",
+              margin: "auto",
+              fontSize: "24px"
             }}
           >
-            <p>Graph View</p>
+            <p
+              style={{
+                fontSize: "18px",
+                margin: "16px 6px 6px 6px"
+              }}
+            >
+              Graph View
+            </p>
             <DAGraphContainer state={state} setState={setState} />{" "}
           </div>{" "}
         </div>

@@ -10,7 +10,6 @@ const ChatBotContainer = props => {
   };
 
   const trigger = (value, ifYes, ifNo, target) => {
-    console.log("target", target);
     if (value.toLowerCase() === "yes") {
       props.setState(prevValues => ({
         ...prevValues,
@@ -63,11 +62,6 @@ const ChatBotContainer = props => {
       validator: value => validate(value),
       trigger: ({ value, target = "insurance" }) => {
         return trigger(value, "6", "6", target);
-        // console.log("previd", props);
-        // if (props.state.ticket === true) {
-        //   return trigger(value, "6", "6", target);
-        // } else if (props.state.ticket === false)
-        //   return trigger(value, "6", "failed", target);
       }
     },
     {

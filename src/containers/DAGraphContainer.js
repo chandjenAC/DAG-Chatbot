@@ -9,26 +9,33 @@ import GraphConfig, {
   nodeTypes
 } from "../config/graph-config"; // Configures node/edge types
 
-const rootNode = {
+const rootAndLeafNode = {
   edges: [],
   nodes: [
     {
       id: "start1",
-      title: "Get Passport",
+      title: "Have Passport?",
       type: EMPTY_TYPE
+    },
+    {
+      id: "a6",
+      title: "Bon Voyage!",
+      type: EMPTY_TYPE,
+      x: 1600,
+      y: 0
     }
   ]
 };
 
 const DAGraphContainer = props => {
+  const graphView = React.createRef(GraphView);
+
   const [graphState, setGraphState] = useState({
-    graph: rootNode,
+    graph: rootAndLeafNode,
     layoutEngineType: undefined,
     selected: null,
-    totalNodes: rootNode.nodes.length
+    totalNodes: rootAndLeafNode.nodes.length
   });
-
-  const graphView = React.createRef(GraphView);
 
   const getTicketAndInsurance = graph => {
     graph.nodes = [
@@ -91,6 +98,7 @@ const DAGraphContainer = props => {
     ];
     return graph;
   };
+
   const getVisaFromInsurance = graph => {
     graph.nodes = [
       {
@@ -153,118 +161,77 @@ const DAGraphContainer = props => {
     return graph;
   };
 
+  const getGiftsAndBonVoyage = graph => {
+    graph.nodes = [...graphState.graph.nodes];
+    graph.edges = [
+      {
+        handleText: "Bon Voyage!",
+        handleTooltipText: "Bought Gifts..Bon Voyage!",
+        source: "a4",
+        target: "a6",
+        type: EMPTY_EDGE_TYPE
+      },
+      ...graphState.graph.edges
+    ];
+    return graph;
+  };
+
+  const getForeignExchangeAndBonVoyage = graph => {
+    graph.nodes = [...graphState.graph.nodes];
+    graph.edges = [
+      {
+        handleText: "Bon Voyage!",
+        handleTooltipText: "Got some cash..Bon Voyage!",
+        source: "a5",
+        target: "a6",
+        type: EMPTY_EDGE_TYPE
+      },
+      ...graphState.graph.edges
+    ];
+    return graph;
+  };
+
   useEffect(() => {
     let graph = graphState;
-    if (
-      props.state.passport.flag === true &&
-      props.state.passport.graphPlotted === false
-    ) {
-      let newGraph = getTicketAndInsurance(graph);
-      setGraphState(prevValues => ({
-        ...prevValues,
-        ["graph"]: newGraph
-      }));
-      props.setState(prevValues => ({
-        ...prevValues,
-        ["passport"]: {
-          flag: true,
-          graphPlotted: true
+    for (let key in props.state) {
+      if (
+        props.state[key].flag === true &&
+        props.state[key].graphPlotted === false
+      ) {
+        let newGraph;
+        if (key === "passport") {
+          newGraph = getTicketAndInsurance(graph);
+        } else if (key === "ticket") {
+          newGraph = getVisaFromTicket(graph);
+        } else if (key === "insurance") {
+          newGraph = getVisaFromInsurance(graph);
+        } else if (key === "visa") {
+          newGraph = getGiftsAndForeignExchange(graph);
+        } else if (key === "gifts") {
+          newGraph = getGiftsAndBonVoyage(graph);
+        } else if (key === "foreignExchange") {
+          newGraph = getForeignExchangeAndBonVoyage(graph);
         }
-      }));
-    }
-    if (
-      props.state.ticket.flag === true &&
-      props.state.ticket.graphPlotted === false
-    ) {
-      let newGraph = getVisaFromTicket(graph);
-      setGraphState(prevValues => ({
-        ...prevValues,
-        ["graph"]: newGraph
-      }));
-      props.setState(prevValues => ({
-        ...prevValues,
-        ["ticket"]: {
-          flag: true,
-          graphPlotted: true
-        }
-      }));
-    }
-    if (
-      props.state.insurance.flag === true &&
-      props.state.insurance.graphPlotted === false
-    ) {
-      let newGraph = getVisaFromInsurance(graph);
-      setGraphState(prevValues => ({
-        ...prevValues,
-        ["graph"]: newGraph
-      }));
-      props.setState(prevValues => ({
-        ...prevValues,
-        ["insurance"]: {
-          flag: true,
-          graphPlotted: true
-        }
-      }));
-    }
-    if (
-      props.state.visa.flag === true &&
-      props.state.visa.graphPlotted === false
-    ) {
-      let newGraph = getGiftsAndForeignExchange(graph);
-      setGraphState(prevValues => ({
-        ...prevValues,
-        ["graph"]: newGraph
-      }));
-      props.setState(prevValues => ({
-        ...prevValues,
-        ["visa"]: {
-          flag: true,
-          graphPlotted: true
-        }
-      }));
+        setGraphState(prevValues => ({
+          ...prevValues,
+          ["graph"]: newGraph
+        }));
+        props.setState(prevValues => ({
+          ...prevValues,
+          [key]: {
+            flag: true,
+            graphPlotted: true
+          }
+        }));
+      }
     }
   });
 
-  const onCreateNode = (x, y) => {
-    const graph = graphState.graph;
-    const type = Math.random() < 0.25 ? EMPTY_TYPE : EMPTY_TYPE;
-    const viewNode = {
-      id: Date.now(),
-      title: "",
-      type,
-      x,
-      y
-    };
-    graph.nodes = [...graph.nodes, viewNode];
-    setGraphState({ graph });
-  };
-
-  const onCreateEdge = (sourceViewNode, targetViewNode) => {
-    const graph = graphState.graph;
-    const type =
-      sourceViewNode.type === EMPTY_TYPE ? EMPTY_EDGE_TYPE : EMPTY_EDGE_TYPE;
-    const viewEdge = {
-      source: sourceViewNode[NODE_KEY],
-      target: targetViewNode[NODE_KEY],
-      type
-    };
-
-    // Only add the edge when the source node is not the same as the target
-    if (viewEdge.source !== viewEdge.target) {
-      graph.edges = [...graph.edges, viewEdge];
-      setGraphState({
-        graph,
-        selected: viewEdge
-      });
-    }
-  };
-
-  // Called when an edge is reattached to a different target.
-
   const handleChangeLayoutEngineType = event => {
-    setGraphState({
+    setGraphState(prevValues => ({
+      ...prevValues,
       layoutEngineType: event.target.value
-    });
+    }));
   };
 
   const { nodes, edges } = graphState.graph;
@@ -272,7 +239,7 @@ const DAGraphContainer = props => {
   const { NodeTypes, NodeSubtypes, EdgeTypes } = GraphConfig;
 
   return (
-    <div style={{ fontSize: "16px" }}>
+    <div style={{ fontSize: "14px" }}>
       <div
         style={{
           margin: "10px",
@@ -282,9 +249,10 @@ const DAGraphContainer = props => {
           alignItems: "center"
         }}
       >
-        <div style={{ margin: "10px" }}>
+        <div style={{ margin: "6px" }}>
           <span>Layout Engine:</span>
           <select
+            style={{ marginLeft: "10px" }}
             name="layout-engine-type"
             onChange={handleChangeLayoutEngineType}
           >
@@ -294,7 +262,7 @@ const DAGraphContainer = props => {
           </select>
         </div>
       </div>
-      <div style={{ height: "660px" }}>
+      <div style={{ height: "750px" }}>
         <GraphView
           ref={graphView}
           nodeKey={NODE_KEY}
@@ -304,8 +272,6 @@ const DAGraphContainer = props => {
           nodeTypes={NodeTypes}
           nodeSubtypes={NodeSubtypes}
           edgeTypes={EdgeTypes}
-          onCreateNode={onCreateNode}
-          onCreateEdge={onCreateEdge}
           layoutEngineType={graphState.layoutEngineType}
         />
       </div>
