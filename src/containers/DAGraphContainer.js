@@ -2,11 +2,9 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { GraphView } from "react-digraph";
 import GraphConfig, {
-  edgeTypes,
   EMPTY_EDGE_TYPE,
   EMPTY_TYPE,
-  NODE_KEY,
-  nodeTypes
+  NODE_KEY
 } from "../config/graph-config"; // Configures node/edge types
 
 const rootAndLeafNode = {
@@ -193,11 +191,12 @@ const DAGraphContainer = props => {
 
   useEffect(() => {
     let graph = graphState;
-    for (let key in props.state) {
+    for (let key in props.holidayState) {
       if (
-        props.state[key].flag === true &&
-        props.state[key].graphPlotted === false
+        props.holidayState[key].flag === true &&
+        props.holidayState[key].graphPlotted === false
       ) {
+        //plotting graph
         let newGraph;
         if (key === "passport") {
           newGraph = getTicketAndInsurance(graph);
@@ -216,7 +215,7 @@ const DAGraphContainer = props => {
           ...prevValues,
           ["graph"]: newGraph
         }));
-        props.setState(prevValues => ({
+        props.setHolidayState(prevValues => ({
           ...prevValues,
           [key]: {
             flag: true,
@@ -245,7 +244,6 @@ const DAGraphContainer = props => {
           margin: "10px",
           display: "flex",
           flexFlow: "row wrap",
-          justifyContent: "space-between",
           alignItems: "center"
         }}
       >
