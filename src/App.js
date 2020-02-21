@@ -4,7 +4,21 @@ import ChatBotContainer from "./containers/ChatBotContainer";
 import DAGraphContainer from "./containers/DAGraphContainer";
 
 const App = () => {
-  const [state, setState] = useState({
+  const [hotelState, setHotelState] = useState({
+    selectedHotel: null,
+    document: null,
+    passport: {
+      flag: false,
+      graphPlotted: true //starting node plotted by default
+    },
+    ticket: {
+      flag: false,
+      graphPlotted: false
+    }
+  });
+  console.log("hotelState", hotelState);
+
+  const [holidayState, setHolidayState] = useState({
     passport: {
       flag: false,
       graphPlotted: true //starting node plotted by default
@@ -42,7 +56,7 @@ const App = () => {
           width: "100%"
         }}
       >
-        DAG - ChatBot{" "}
+        DAG - ChatBot
       </header>
       <div className="main">
         <div
@@ -50,14 +64,18 @@ const App = () => {
             margin: "16px 8px 16px 16px"
           }}
         >
-          {" "}
           <div
             style={{
               width: "80%",
               margin: "auto"
             }}
           >
-            <ChatBotContainer setState={setState} state={state} />
+            <ChatBotContainer
+              setHolidayState={setHolidayState}
+              holidayState={holidayState}
+              hotelState={hotelState}
+              setHotelState={setHotelState}
+            />
           </div>
         </div>
         <div
@@ -69,8 +87,7 @@ const App = () => {
           <div
             style={{
               width: "90%",
-              margin: "auto",
-              fontSize: "24px"
+              margin: "auto"
             }}
           >
             <p
@@ -81,8 +98,13 @@ const App = () => {
             >
               Graph View
             </p>
-            <DAGraphContainer state={state} setState={setState} />{" "}
-          </div>{" "}
+            <DAGraphContainer
+              holidayState={holidayState}
+              setHolidayState={setHolidayState}
+              hotelState={hotelState}
+              setHotelState={setHotelState}
+            />
+          </div>
         </div>
       </div>
     </div>
