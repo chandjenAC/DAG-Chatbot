@@ -12,7 +12,7 @@ const rootAndLeafNode = {
   nodes: [
     {
       id: "start1",
-      title: "Have Passport?",
+      title: "",
       type: EMPTY_TYPE
     },
     {
@@ -191,9 +191,15 @@ const DAGraphContainer = props => {
 
   useEffect(() => {
     let graph = graphState;
+    // console.log("useStte working", props.holidayState);
     for (let key in props.holidayState) {
+      // console.log("object", props.holidayState[key].response);
+      // console.log("key", key);
+      // console.log("value", props.holidayState[key]);
+
+      // console.log(props)
       if (
-        props.holidayState[key].flag === true &&
+        props.holidayState[key].response === true &&
         props.holidayState[key].graphPlotted === false
       ) {
         //plotting graph
@@ -215,11 +221,15 @@ const DAGraphContainer = props => {
           ...prevValues,
           ["graph"]: newGraph
         }));
-        props.setHolidayState(prevValues => ({
-          ...prevValues,
-          [key]: {
-            flag: true,
-            graphPlotted: true
+        props.setState(prevState => ({
+          ...prevState,
+          bookHoliday: {
+            ...prevState.bookHoliday, // copy all other key-value pairs of food object
+            [key]: {
+              // specific object of food object
+              ...prevState.bookHoliday[key], // copy all pizza key-value pairs
+              graphPlotted: true // update value of specific key
+            }
           }
         }));
       }

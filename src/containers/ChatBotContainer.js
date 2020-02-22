@@ -12,11 +12,10 @@ import image7 from "../images/7.jpg";
 import image8 from "../images/8.jpg";
 import tallyxAvatar from "../images/tallyx.png";
 import ChatbotHeader from "../components/ChatbotHeader";
-import DisplayMessage from "../components/DisplayMessage"
-import axios from 'axios';
+import DisplayMessage from "../components/DisplayMessage";
+import axios from "axios";
 
 const ChatBotContainer = props => {
-
   const images = [
     { image: image1, title: "The Avenue Regent" },
     { image: image2, title: "Casino Hotel" },
@@ -25,9 +24,8 @@ const ChatBotContainer = props => {
     { image: image5, title: "Grand Hyatt" },
     { image: image6, title: "Ramada" },
     { image: image7, title: "SAJ Earth Resort" },
-    { image: image8, title: "Marriot" },
+    { image: image8, title: "Marriot" }
   ];
-
 
   const validate = value => {
     if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
@@ -36,15 +34,16 @@ const ChatBotContainer = props => {
     return true;
   };
 
-
-
   const trigger = (value, ifYes, ifNo, target) => {
     if (value.toLowerCase() === "yes") {
-      props.setHolidayState(prevValues => ({
-        ...prevValues,
-        [target]: {
-          flag: true,
-          graphPlotted: false
+      props.setState(prevState => ({
+        ...prevState,
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          [target]: {
+            ...prevState.bookHoliday[target],
+            response: true
+          }
         }
       }));
       return ifYes;
@@ -53,34 +52,55 @@ const ChatBotContainer = props => {
   };
 
   const onSelect = (imageTitle, triggerNextStep) => {
-    props.setHotelState(prevValues => ({
-      ...prevValues,
-      ["selectedHotel"]: imageTitle
+    props.setState(prevState => ({
+      ...prevState,
+      bookHotel: {
+        ...prevState.bookHotel,
+        ["selectedHotel"]: {
+          response: imageTitle,
+          graphPlotted: false
+        }
+      }
     }));
-    triggerNextStep({ value: imageTitle, trigger: "hotelSelected" })
+    triggerNextStep({ value: imageTitle, trigger: "hotelSelected" });
   };
 
-
-
-  const onFileUpload = (file, triggerNextStep) => {
-    console.log("document check on upload click", props.hotelState["document"])
-    const data = new FormData()
-    data.append('file', file)
-    axios.post("http://localhost:8000/upload", data, { // receive two parameter endpoint url ,form data 
-    })
-      .then(res => { // then print response status
-        console.log(res.statusText)
+  const onFileUpload = (
+    file,
+    triggerNextStep,
+    setFileUploadState,
+    setDisableButton
+  ) => {
+    setDisableButton(true);
+    const data = new FormData();
+    data.append("file", file);
+    axios
+      .post("http://localhost:8000/upload", data, {
+        // receive two parameter endpoint url ,form data
+        onUploadProgress: ProgressEvent => {
+          setFileUploadState(prevValues => ({
+            ...prevValues,
+            loaded: (ProgressEvent.loaded / ProgressEvent.total) * 100
+          }));
+        }
       })
-  }
+      .then(res => {
+        // then print response status
+        console.log(res.statusText);
+      });
+    triggerNextStep({ trigger: "bookingConfirmed" });
+  };
 
   const steps = [
     {
       id: "0",
       message: "Hi Sir, Greetings!..May I help You?",
+      placeholder: "Select from the options",
       trigger: "1"
     },
     {
       id: "1",
+      placeholder: "Select from the options",
       options: [
         { value: "hotel", label: "Hotel", trigger: "selectHotel" },
         { value: "holiday", label: "Holiday", trigger: "holiday" }
@@ -89,8 +109,8 @@ const ChatBotContainer = props => {
     {
       id: "selectHotel",
       message: "Please choose your desired hotel from below options",
-      trigger: "hotel1"
-
+      trigger: "hotel1",
+      placeholder: "Select from the options"
     },
     {
       id: "hotel1",
@@ -102,16 +122,12 @@ const ChatBotContainer = props => {
         />
       ),
       waitAction: true,
-      value: "stesfse"
+      placeholder: "Select from suggested options"
     },
     {
       id: "hotelSelected",
       asMessage: true,
-      component: (
-        <DisplayMessage
-          message={"Your room is reserved."}
-        />
-      ),
+      component: <DisplayMessage message={"Your room is reserved."} />,
       trigger: "documentRequest"
     },
     {
@@ -122,16 +138,18 @@ const ChatBotContainer = props => {
     },
     {
       id: "uploadDocument",
+      placeholder: "Upload document",
       component: <UploadDocument onFileUpload={onFileUpload} />,
-
+      waitAction: true
     },
     {
       id: "bookingConfirmed",
-      message: "Thank you, your booking is confirmed"
+      delay: 2000,
+      message: "Thank you, your booking is confirmed!"
     },
     {
       id: "holiday",
-      message: "Hi Sir, Greetings!.. Do you have a passport?",
+      message: "Do you have a passport?",
       trigger: "2"
     },
     {
@@ -217,7 +235,13 @@ const ChatBotContainer = props => {
       end: true
     }
   ];
-  return <ChatBot botAvatar={tallyxAvatar} headerComponent={<ChatbotHeader />} steps={steps} />;
+  return (
+    <ChatBot
+      botAvatar={tallyxAvatar}
+      headerComponent={<ChatbotHeader />}
+      steps={steps}
+    />
+  );
 };
 
 export default ChatBotContainer;
