@@ -50,7 +50,7 @@ const App = () => {
       <header
         style={{
           fontSize: "24px",
-          background: "#d2baf7",
+          background: "#f0e3fc",
           padding: 10,
           position: "fixed",
           width: "100%"

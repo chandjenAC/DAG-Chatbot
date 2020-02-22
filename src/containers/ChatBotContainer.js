@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ChatBot from "react-simple-chatbot";
 import SelectHotel from "../components/SelectHotel";
 import UploadDocument from "../components/UploadDocument";
@@ -10,19 +10,24 @@ import image5 from "../images/5.jpg";
 import image6 from "../images/6.jpg";
 import image7 from "../images/7.jpg";
 import image8 from "../images/8.jpg";
+import tallyxAvatar from "../images/tallyx.png";
+import ChatbotHeader from "../components/ChatbotHeader";
+import DisplayMessage from "../components/DisplayMessage"
+import axios from 'axios';
 
 const ChatBotContainer = props => {
 
   const images = [
-    image1,
-    image2,
-    image3,
-    image4,
-    image5,
-    image6,
-    image7,
-    image8
+    { image: image1, title: "The Avenue Regent" },
+    { image: image2, title: "Casino Hotel" },
+    { image: image3, title: "Mezzo" },
+    { image: image4, title: "Crown Plaza" },
+    { image: image5, title: "Grand Hyatt" },
+    { image: image6, title: "Ramada" },
+    { image: image7, title: "SAJ Earth Resort" },
+    { image: image8, title: "Marriot" },
   ];
+
 
   const validate = value => {
     if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
@@ -30,6 +35,8 @@ const ChatBotContainer = props => {
     }
     return true;
   };
+
+
 
   const trigger = (value, ifYes, ifNo, target) => {
     if (value.toLowerCase() === "yes") {
@@ -41,10 +48,30 @@ const ChatBotContainer = props => {
         }
       }));
       return ifYes;
-    } else if (value.toLowerCase() === "no") {
-      return ifNo;
     }
+    return ifNo;
   };
+
+  const onSelect = (imageTitle, triggerNextStep) => {
+    props.setHotelState(prevValues => ({
+      ...prevValues,
+      ["selectedHotel"]: imageTitle
+    }));
+    triggerNextStep({ value: imageTitle, trigger: "hotelSelected" })
+  };
+
+
+
+  const onFileUpload = (file, triggerNextStep) => {
+    console.log("document check on upload click", props.hotelState["document"])
+    const data = new FormData()
+    data.append('file', file)
+    axios.post("http://localhost:8000/upload", data, { // receive two parameter endpoint url ,form data 
+    })
+      .then(res => { // then print response status
+        console.log(res.statusText)
+      })
+  }
 
   const steps = [
     {
@@ -63,48 +90,40 @@ const ChatBotContainer = props => {
       id: "selectHotel",
       message: "Please choose your desired hotel from below options",
       trigger: "hotel1"
-      
+
     },
     {
       id: "hotel1",
       component: (
         <SelectHotel
-          name={"Casino Hotel"}
+          title={"Suggestion Title"}
           images={images}
-          setHotelState={props.setHotelState}
-          hotelState={props.hotelState}
+          onSelect={onSelect}
         />
       ),
-      trigger: () => {
-        return "hotel2";
-      }
+      waitAction: true,
+      value: "stesfse"
     },
     {
-      id: "hotel2",
+      id: "hotelSelected",
+      asMessage: true,
       component: (
-        <SelectHotel
-          name={"The Avenue Regent"}
-          images={images}
-          setHotelState={props.setHotelState}
-          hotelState={props.hotelState}
+        <DisplayMessage
+          message={"Your room is reserved."}
         />
       ),
-      trigger: () => {
-        return "documentRequest";
-      }
+      trigger: "documentRequest"
     },
     {
       id: "documentRequest",
-      message: "Please upload an id proof ",
+      delay: 2000,
+      message: "Please upload an id proof to confirm your booking",
       trigger: "uploadDocument"
-      
     },
     {
       id: "uploadDocument",
-      component: <UploadDocument setHotelState={props.setHotelState} />,
-      // trigger: () => {
-      //   return props.hotelState["document"] ? "bookingConfirmed" : "failed";
-      // }
+      component: <UploadDocument onFileUpload={onFileUpload} />,
+
     },
     {
       id: "bookingConfirmed",
@@ -172,7 +191,7 @@ const ChatBotContainer = props => {
       user: true,
       validator: value => validate(value),
       trigger: ({ value, target = "gifts" }) => {
-        return trigger(value, "10", "10", target);
+        return trigger(value, "cash", "cash", target);
       }
     },
     {
@@ -198,8 +217,7 @@ const ChatBotContainer = props => {
       end: true
     }
   ];
-
-  return <ChatBot headerTitle="Tallyx" steps={steps} />;
+  return <ChatBot botAvatar={tallyxAvatar} headerComponent={<ChatbotHeader />} steps={steps} />;
 };
 
 export default ChatBotContainer;
