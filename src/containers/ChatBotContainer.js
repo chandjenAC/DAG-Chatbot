@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ChatBot from "react-simple-chatbot";
 import SelectHotel from "../components/SelectHotel";
 import UploadDocument from "../components/UploadDocument";
@@ -34,6 +34,65 @@ const ChatBotContainer = props => {
     return true;
   };
 
+  const mainSelect = (value, ifYes, ifNo, target) => {
+    if (value.toLowerCase() === "hotel") {
+      props.setState(prevState => ({
+        ...prevState,
+        selectedService: {
+          ...prevState.selectedService,
+          response: value
+        },
+        bookHotel: {
+          ...prevState.bookHotel,
+          selectHotel: {
+            ...prevState.bookHotel.selectHotel,
+            response: "waitingResponse.."
+          },
+          hotels: prevState.bookHotel.hotels.map(el =>
+            el ? { ...el, response: "rendered" } : el
+          )
+        }
+      }));
+      return ifYes;
+    } else if (value.toLowerCase() === "holiday") {
+      props.setState(prevState => ({
+        ...prevState,
+        selectedService: {
+          ...prevState.selectedService,
+          response: value
+        },
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          destinations: {
+            ...prevState.bookHoliday.destinations,
+            response: "checking.."
+          }
+        }
+      }));
+      return ifYes;
+    } else if (
+      value.toLowerCase() === "europe" ||
+      value.toLowerCase() === "miami"
+    ) {
+      props.setState(prevState => ({
+        ...prevState,
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          selectedDestination: {
+            ...prevState.bookHoliday.selectedDestination,
+            response: value
+          }
+          // passport: {
+          //   ...prevState.bookHoliday.passport,
+          //   response: "checking.."
+          // }
+        }
+      }));
+      return ifYes;
+    }
+    return ifNo;
+  };
+
   const trigger = (value, ifYes, ifNo, target) => {
     if (value.toLowerCase() === "yes") {
       props.setState(prevState => ({
@@ -42,7 +101,7 @@ const ChatBotContainer = props => {
           ...prevState.bookHoliday,
           [target]: {
             ...prevState.bookHoliday[target],
-            response: true
+            response: value
           }
         }
       }));
@@ -57,6 +116,7 @@ const ChatBotContainer = props => {
       bookHotel: {
         ...prevState.bookHotel,
         ["selectedHotel"]: {
+          id: "selectedHotel",
           response: imageTitle,
           graphPlotted: false
         }
@@ -76,7 +136,6 @@ const ChatBotContainer = props => {
     data.append("file", file);
     axios
       .post("http://localhost:8000/upload", data, {
-        // receive two parameter endpoint url ,form data
         onUploadProgress: ProgressEvent => {
           setFileUploadState(prevValues => ({
             ...prevValues,
@@ -85,9 +144,19 @@ const ChatBotContainer = props => {
         }
       })
       .then(res => {
-        // then print response status
         console.log(res.statusText);
       });
+    props.setState(prevState => ({
+      ...prevState,
+      bookHotel: {
+        ...prevState.bookHotel,
+        ["document"]: {
+          id: "documentUpload",
+          response: file,
+          graphPlotted: false
+        }
+      }
+    }));
     triggerNextStep({ trigger: "bookingConfirmed" });
   };
 
@@ -102,8 +171,20 @@ const ChatBotContainer = props => {
       id: "1",
       placeholder: "Select from the options",
       options: [
-        { value: "hotel", label: "Hotel", trigger: "selectHotel" },
-        { value: "holiday", label: "Holiday", trigger: "holiday" }
+        {
+          value: "hotel",
+          label: "Hotel",
+          trigger: ({ value }) => {
+            return mainSelect(value, "selectHotel", "failed");
+          }
+        },
+        {
+          value: "holiday",
+          label: "Holiday",
+          trigger: ({ value }) => {
+            return mainSelect(value, "destination", "failed");
+          }
+        }
       ]
     },
     {
@@ -148,7 +229,32 @@ const ChatBotContainer = props => {
       message: "Thank you, your booking is confirmed!"
     },
     {
-      id: "holiday",
+      id: "destination",
+      message: "Choose your destination",
+      trigger: "destinationOptions"
+    },
+    {
+      id: "destinationOptions",
+      placeholder: "Select from the options",
+      options: [
+        {
+          value: "europe",
+          label: "Europe",
+          trigger: ({ value }) => {
+            return mainSelect(value, "passport", "failed");
+          }
+        },
+        {
+          value: "miami",
+          label: "Miami",
+          trigger: ({ value }) => {
+            return mainSelect(value, "passport", "failed");
+          }
+        }
+      ]
+    },
+    {
+      id: "passport",
       message: "Do you have a passport?",
       trigger: "2"
     },
@@ -235,6 +341,7 @@ const ChatBotContainer = props => {
       end: true
     }
   ];
+
   return (
     <ChatBot
       botAvatar={tallyxAvatar}

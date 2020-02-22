@@ -2,17 +2,14 @@ import React, { useState } from "react";
 import "./App.css";
 import ChatBotContainer from "./containers/ChatBotContainer";
 import DAGraphContainer from "./containers/DAGraphContainer";
-const generateNodeFromState=(state)=>{
-  let nodes=[]
-  
-}
+
 const App = () => {
   const [state, setState] = useState({
     selectedService: {
       //starting node plotted by default. Every object is a node.
       id: "selectService",
       response: null, //response is the user response from chatBot
-      graphPlotted: true // this variable is a function of user response. If true, node will be plotted with related edges.
+      graphPlotted: true //  is a function of user response.This is the root node plotted by default in DAGraphContainer. For rest of the state objects if graphPlotted is true, corresponding node will be plotted with related edges.
     },
     bookHotel: {
       id: "bookHotel",
@@ -31,6 +28,11 @@ const App = () => {
         { id: "SAJ Earth Resort", response: false, graphPlotted: false },
         { id: "Marriot", response: false, graphPlotted: false }
       ],
+      selectedHotel: {
+        id: "selectedHotel",
+        response: null,
+        graphPlotted: false
+      },
       document: {
         id: "documentUpload",
         response_: null,
@@ -44,6 +46,16 @@ const App = () => {
     },
     bookHoliday: {
       id: "bookHoliday",
+      destinations: {
+        id: "destinations",
+        response: null,
+        graphPlotted: false
+      },
+      selectedDestination:{
+        id: "selectedDestination",
+        response: null,
+        graphPlotted: false
+      },
       passport: {
         id: "passportCheck",
         response: null,
@@ -77,8 +89,6 @@ const App = () => {
     }
   });
 
-  console.log("state", state);
-
   return (
     <div className="App">
       <header
@@ -108,6 +118,7 @@ const App = () => {
               holidayState={state.bookHoliday}
               hotelState={state.bookHotel}
               setState={setState}
+              state={state} //can be removed later
             />
           </div>
         </div>
@@ -135,6 +146,7 @@ const App = () => {
               holidayState={state.bookHoliday}
               setHolidayState={setState}
               hotelState={state.bookHotel}
+              state={state}
               setHotelState={setState}
               setState={setState}
             />
