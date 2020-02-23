@@ -2,6 +2,25 @@ import React, { useState } from "react";
 import "./App.css";
 import ChatBotContainer from "./containers/ChatBotContainer";
 import DAGraphContainer from "./containers/DAGraphContainer";
+import image1 from "./images/1.jpg";
+import image2 from "./images/2.jpg";
+import image3 from "./images/3.jpg";
+import image4 from "./images/4.jpg";
+import image5 from "./images/5.jpg";
+import image6 from "./images/6.jpg";
+import image7 from "./images/7.jpg";
+import image8 from "./images/8.jpg";
+
+const hotelsArray = [
+  { image: image1, title: "The Avenue Regent" },
+  { image: image2, title: "Casino Hotel" },
+  { image: image3, title: "Mezzo" },
+  { image: image4, title: "Crown Plaza" },
+  { image: image5, title: "Grand Hyatt" },
+  { image: image6, title: "Ramada" },
+  { image: image7, title: "SAJ Earth Resort" },
+  { image: image8, title: "Marriot" }
+];
 
 const App = () => {
   const [state, setState] = useState({
@@ -51,7 +70,7 @@ const App = () => {
         response: null,
         graphPlotted: false
       },
-      selectedDestination:{
+      selectedDestination: {
         id: "selectedDestination",
         response: null,
         graphPlotted: false
@@ -118,7 +137,7 @@ const App = () => {
               holidayState={state.bookHoliday}
               hotelState={state.bookHotel}
               setState={setState}
-              state={state} //can be removed later
+              hotelsArray={hotelsArray}
             />
           </div>
         </div>
@@ -144,11 +163,9 @@ const App = () => {
             </p>
             <DAGraphContainer
               holidayState={state.bookHoliday}
-              setHolidayState={setState}
+              setState={setState}
               hotelState={state.bookHotel}
               state={state}
-              setHotelState={setState}
-              setState={setState}
             />
           </div>
         </div>
@@ -158,147 +175,3 @@ const App = () => {
 };
 
 export default App;
-
-// import React, { useState } from "react";
-// import "./App.css";
-// import ChatBotContainer from "./containers/ChatBotContainer";
-// import DAGraphContainer from "./containers/DAGraphContainer";
-
-// const App = () => {
-//   // const [hotelState, setHotelState] = useState({
-//   //   selectedHotel: null,
-//   //   document: null,
-//   //   passport: {
-//   //     flag: false,
-//   //     graphPlotted: true //starting node plotted by default
-//   //   },
-//   //   ticket: {
-//   //     flag: false,
-//   //     graphPlotted: false
-//   //   }
-//   // });
-
-//   const
-
-//   const [hotelState, setHotelState] = useState({
-//     selectHotel: {
-//       status: false,
-//       graphPlotted: false
-//     },
-//     // selectedHotel: null,
-//     // document: null,
-//     hotels: [
-//       { hotelName: "The Avenue Regent", selected: false, graphPlotted: false },
-//       { hotelName: "Casino Hotel", selected: false, graphPlotted: false },
-//       { hotelName: "Mezzo", selected: false, graphPlotted: false },
-//       { hotelName: "Crown Plaza", selected: false, graphPlotted: false },
-//       { hotelName: "Grand Hyatt", selected: false, graphPlotted: false },
-//       { hotelName: "Ramada", selected: false, graphPlotted: false },
-//       { hotelName: "SAJ Earth Resort", selected: false, graphPlotted: false },
-//       { hotelName: "Marriot", selected: false, graphPlotted: false }
-//     ],
-//     document: {
-//       selectedDocument: null,
-//       graphPlotted: false
-//     },
-//     confirmed: {
-//       status: false,
-//       graphPlotted: false
-//     }
-//   });
-//   console.log("hotelState", hotelState);
-
-//   const [holidayState, setHolidayState] = useState({
-//     passport: {
-//       flag: false,
-//       graphPlotted: true //starting node plotted by default
-//     },
-//     ticket: {
-//       flag: false,
-//       graphPlotted: false
-//     },
-//     insurance: {
-//       flag: false,
-//       graphPlotted: false
-//     },
-//     visa: {
-//       flag: false,
-//       graphPlotted: false
-//     },
-//     gifts: {
-//       flag: false,
-//       graphPlotted: false
-//     },
-//     foreignExchange: {
-//       flag: false,
-//       graphPlotted: false
-//     }
-//   });
-
-//   return (
-//     <div className="App">
-//       <header
-//         style={{
-//           fontSize: "24px",
-//           background: "#f0e3fc",
-//           padding: 10,
-//           position: "fixed",
-//           width: "100%"
-//         }}
-//       >
-//         DAG - ChatBot
-//       </header>
-//       <div className="main">
-//         <div
-//           style={{
-//             margin: "16px 8px 16px 16px"
-//           }}
-//         >
-//           <div
-//             style={{
-//               width: "80%",
-//               margin: "auto"
-//             }}
-//           >
-//             <ChatBotContainer
-//               setHolidayState={setHolidayState}
-//               holidayState={holidayState}
-//               hotelState={hotelState}
-//               setHotelState={setHotelState}
-//             />
-//           </div>
-//         </div>
-//         <div
-//           style={{
-//             margin: "16px 0px 56px 8px",
-//             flexGrow: "2"
-//           }}
-//         >
-//           <div
-//             style={{
-//               width: "90%",
-//               margin: "auto"
-//             }}
-//           >
-//             <p
-//               style={{
-//                 fontSize: "18px",
-//                 margin: "16px 6px 6px 6px"
-//               }}
-//             >
-//               Graph View
-//             </p>
-//             <DAGraphContainer
-//               holidayState={holidayState}
-//               setHolidayState={setHolidayState}
-//               hotelState={hotelState}
-//               setHotelState={setHotelState}
-//             />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default App;

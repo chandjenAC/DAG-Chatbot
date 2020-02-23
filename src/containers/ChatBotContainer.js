@@ -2,31 +2,13 @@ import React from "react";
 import ChatBot from "react-simple-chatbot";
 import SelectHotel from "../components/SelectHotel";
 import UploadDocument from "../components/UploadDocument";
-import image1 from "../images/1.jpg";
-import image2 from "../images/2.jpg";
-import image3 from "../images/3.jpg";
-import image4 from "../images/4.jpg";
-import image5 from "../images/5.jpg";
-import image6 from "../images/6.jpg";
-import image7 from "../images/7.jpg";
-import image8 from "../images/8.jpg";
 import tallyxAvatar from "../images/tallyx.png";
 import ChatbotHeader from "../components/ChatbotHeader";
 import DisplayMessage from "../components/DisplayMessage";
 import axios from "axios";
 
 const ChatBotContainer = props => {
-  const images = [
-    { image: image1, title: "The Avenue Regent" },
-    { image: image2, title: "Casino Hotel" },
-    { image: image3, title: "Mezzo" },
-    { image: image4, title: "Crown Plaza" },
-    { image: image5, title: "Grand Hyatt" },
-    { image: image6, title: "Ramada" },
-    { image: image7, title: "SAJ Earth Resort" },
-    { image: image8, title: "Marriot" }
-  ];
-
+  const { hotelsArray } = props;
   const validate = value => {
     if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
       return "Please answer yes/no";
@@ -82,10 +64,6 @@ const ChatBotContainer = props => {
             ...prevState.bookHoliday.selectedDestination,
             response: value
           }
-          // passport: {
-          //   ...prevState.bookHoliday.passport,
-          //   response: "checking.."
-          // }
         }
       }));
       return ifYes;
@@ -198,7 +176,7 @@ const ChatBotContainer = props => {
       component: (
         <SelectHotel
           title={"Suggestion Title"}
-          images={images}
+          hotelsArray={hotelsArray}
           onSelect={onSelect}
         />
       ),

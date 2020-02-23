@@ -47,6 +47,27 @@ const root = {
   ]
 };
 
+const getSelectedNodeByIdFromNodeArray = (id, array) => {
+  return array.filter(obj => {
+    return obj.title === id;
+  });
+};
+
+// const createNodesFromArray = array => {
+//     let newNodes = [];
+//     for (let i = 0; i < array.length; i++) {
+//       newNodes.push({
+//         id: `a${i + 2}`,
+//         title: array[i].title,
+//         type: EMPTY_TYPE,
+//         x: 800,
+//         y: 1100 - 200 * i
+//       });
+//     }
+//     return newNodes;
+//   };
+
+
 const DAGraphContainer = props => {
   const graphView = React.createRef(GraphView);
 
@@ -73,7 +94,7 @@ const DAGraphContainer = props => {
         x: 800,
         y: -100
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -90,7 +111,7 @@ const DAGraphContainer = props => {
         target: "b3",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -104,7 +125,7 @@ const DAGraphContainer = props => {
         x: 1200,
         y: -300
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -121,7 +142,7 @@ const DAGraphContainer = props => {
         target: "b4",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -142,7 +163,7 @@ const DAGraphContainer = props => {
         x: 1600,
         y: -500
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -159,7 +180,7 @@ const DAGraphContainer = props => {
         target: "b6",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -173,7 +194,7 @@ const DAGraphContainer = props => {
         x: 2000,
         y: -300
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -183,7 +204,7 @@ const DAGraphContainer = props => {
         target: "b7",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -197,7 +218,7 @@ const DAGraphContainer = props => {
         x: 2000,
         y: -300
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -207,7 +228,7 @@ const DAGraphContainer = props => {
         target: "b7",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -228,7 +249,7 @@ const DAGraphContainer = props => {
         x: 2400,
         y: -500
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -245,7 +266,7 @@ const DAGraphContainer = props => {
         target: "b9",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -259,7 +280,7 @@ const DAGraphContainer = props => {
         x: 2800,
         y: -300
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -269,7 +290,7 @@ const DAGraphContainer = props => {
         target: "b10",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
@@ -280,10 +301,10 @@ const DAGraphContainer = props => {
         id: "b10",
         title: "Bon Voyage!",
         type: EMPTY_TYPE,
-        x: 2400,
+        x: 2800,
         y: -300
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
@@ -293,71 +314,72 @@ const DAGraphContainer = props => {
         target: "b10",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
 
+  let hotelNodes = [
+    {
+      id: "a2",
+      title: "The Avenue Regent",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 1100
+    },
+    {
+      id: "a3",
+      title: "Casino Hotel",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 900
+    },
+    {
+      id: "a4",
+      title: "Mezzo",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 700
+    },
+    {
+      id: "a5",
+      title: "Crown Plaza",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 500
+    },
+    {
+      id: "a6",
+      title: "Grand Hyatt",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 300
+    },
+    {
+      id: "a7",
+      title: "Ramada",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: 100
+    },
+    {
+      id: "a8",
+      title: "SAJ Earth Resort",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: -100
+    },
+    {
+      id: "a9",
+      title: "Marriot",
+      type: EMPTY_TYPE,
+      x: 800,
+      y: -300
+    }
+  ];
+
   const getHotels = graph => {
-    graph.nodes = [
-      {
-        id: "a2",
-        title: "Hotel 1",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 1100
-      },
-      {
-        id: "a3",
-        title: "Hotel 2",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 900
-      },
-      {
-        id: "a4",
-        title: "Hotel 3",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 700
-      },
-      {
-        id: "a5",
-        title: "Hotel 4",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 500
-      },
-      {
-        id: "a6",
-        title: "Hotel 5",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 300
-      },
-      {
-        id: "a7",
-        title: "Hotel 6",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: 100
-      },
-      {
-        id: "a8",
-        title: "Hotel 7",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: -100
-      },
-      {
-        id: "a9",
-        title: "Hotel 8",
-        type: EMPTY_TYPE,
-        x: 800,
-        y: -300
-      },
-      ...graphState.graph.nodes
-    ];
+    graph.nodes = [...hotelNodes, ...graph.nodes];
     graph.edges = [
       {
         handleText: "Select Hotel",
@@ -415,12 +437,14 @@ const DAGraphContainer = props => {
         target: "a9",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
 
   const getDocument = graph => {
+    let hotelId = props.hotelState.selectedHotel.response;
+    let selectedNode = getSelectedNodeByIdFromNodeArray(hotelId, hotelNodes);
     graph.nodes = [
       {
         id: "a10",
@@ -429,21 +453,21 @@ const DAGraphContainer = props => {
         x: 1200,
         y: 200
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
-        handleText: "Bon Voyage!",
-        handleTooltipText: "Bought Gifts..Bon Voyage!",
-        source: "a3",
+        handleText: `${selectedNode[0].title} selected..Requesting ID Proof`,
+        handleTooltipText: "document request",
+        source: selectedNode[0].id,
         target: "a10",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
-  
+
   const getConfirmLeafNode = graph => {
     graph.nodes = [
       {
@@ -453,23 +477,23 @@ const DAGraphContainer = props => {
         x: 1600,
         y: 200
       },
-      ...graphState.graph.nodes
+      ...graph.nodes
     ];
     graph.edges = [
       {
-        handleText: "Bon Voyage!",
-        handleTooltipText: "Bought Gifts..Bon Voyage!",
+        handleText: "Booking Confirmed!",
+        handleTooltipText: "Success!",
         source: "a10",
         target: "a11",
         type: EMPTY_EDGE_TYPE
       },
-      ...graphState.graph.edges
+      ...graph.edges
     ];
     return graph;
   };
 
   useEffect(() => {
-    let graph = graphState;
+    let graph = graphState.graph;
     if (props.state.selectedService.response === "hotel") {
       for (let key in props.hotelState) {
         if (
@@ -485,10 +509,6 @@ const DAGraphContainer = props => {
           } else if (key === "document") {
             newGraph = getConfirmLeafNode(graph);
           }
-          setGraphState(prevValues => ({
-            ...prevValues,
-            ["graph"]: newGraph
-          }));
           props.setState(prevState => ({
             ...prevState,
             bookHotel: {
@@ -498,6 +518,10 @@ const DAGraphContainer = props => {
                 graphPlotted: true
               }
             }
+          }));
+          setGraphState(prevValues => ({
+            ...prevValues,
+            ["graph"]: newGraph
           }));
         }
       }
