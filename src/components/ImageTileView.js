@@ -1,6 +1,8 @@
 import React from "react";
 
 const ImageTileView = props => {
+  const { onSelect, triggerNextStep, data } = props;
+
   return (
     <div
       style={{
@@ -10,10 +12,21 @@ const ImageTileView = props => {
         overflowX: "scroll"
       }}
     >
-      {props.images.map((image, index) => {
+      {data.map((value, index) => {
         return (
-          <div key={index} style={{ padding: 8 }}>
-            <img src={image} alt="sample alt text " height="100" width="100" />{" "}
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              flexDirection: "column",
+              cursor: "pointer",
+              margin: "8px"
+            }}
+            onClick={() => onSelect(value.title, triggerNextStep)}
+          >
+            <p>{value.title}</p>
+            <img src={value.image} alt={value.title} height="100" width="100" />
           </div>
         );
       })}

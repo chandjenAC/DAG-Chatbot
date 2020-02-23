@@ -2,28 +2,13 @@ import React from "react";
 import ChatBot from "react-simple-chatbot";
 import SelectHotel from "../components/SelectHotel";
 import UploadDocument from "../components/UploadDocument";
-import image1 from "../images/1.jpg";
-import image2 from "../images/2.jpg";
-import image3 from "../images/3.jpg";
-import image4 from "../images/4.jpg";
-import image5 from "../images/5.jpg";
-import image6 from "../images/6.jpg";
-import image7 from "../images/7.jpg";
-import image8 from "../images/8.jpg";
+import tallyxAvatar from "../images/tallyx.png";
+import ChatbotHeader from "../components/ChatbotHeader";
+import DisplayMessage from "../components/DisplayMessage";
+import axios from "axios";
 
 const ChatBotContainer = props => {
-
-  const images = [
-    image1,
-    image2,
-    image3,
-    image4,
-    image5,
-    image6,
-    image7,
-    image8
-  ];
-
+  const { hotelsArray } = props;
   const validate = value => {
     if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
       return "Please answer yes/no";
@@ -31,88 +16,224 @@ const ChatBotContainer = props => {
     return true;
   };
 
-  const trigger = (value, ifYes, ifNo, target) => {
-    if (value.toLowerCase() === "yes") {
-      props.setHolidayState(prevValues => ({
-        ...prevValues,
-        [target]: {
-          flag: true,
-          graphPlotted: false
+  const mainSelect = (value, ifYes, ifNo, target) => {
+    if (value.toLowerCase() === "hotel") {
+      props.setState(prevState => ({
+        ...prevState,
+        selectedService: {
+          ...prevState.selectedService,
+          response: value
+        },
+        bookHotel: {
+          ...prevState.bookHotel,
+          selectHotel: {
+            ...prevState.bookHotel.selectHotel,
+            response: "waitingResponse.."
+          },
+          hotels: prevState.bookHotel.hotels.map(el =>
+            el ? { ...el, response: "rendered" } : el
+          )
         }
       }));
       return ifYes;
-    } else if (value.toLowerCase() === "no") {
-      return ifNo;
+    } else if (value.toLowerCase() === "holiday") {
+      props.setState(prevState => ({
+        ...prevState,
+        selectedService: {
+          ...prevState.selectedService,
+          response: value
+        },
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          destinations: {
+            ...prevState.bookHoliday.destinations,
+            response: "checking.."
+          }
+        }
+      }));
+      return ifYes;
+    } else if (
+      value.toLowerCase() === "europe" ||
+      value.toLowerCase() === "miami"
+    ) {
+      props.setState(prevState => ({
+        ...prevState,
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          selectedDestination: {
+            ...prevState.bookHoliday.selectedDestination,
+            response: value
+          }
+        }
+      }));
+      return ifYes;
     }
+    return ifNo;
+  };
+
+  const trigger = (value, ifYes, ifNo, target) => {
+    if (value.toLowerCase() === "yes") {
+      props.setState(prevState => ({
+        ...prevState,
+        bookHoliday: {
+          ...prevState.bookHoliday,
+          [target]: {
+            ...prevState.bookHoliday[target],
+            response: value
+          }
+        }
+      }));
+      return ifYes;
+    }
+    return ifNo;
+  };
+
+  const onSelect = (imageTitle, triggerNextStep) => {
+    props.setState(prevState => ({
+      ...prevState,
+      bookHotel: {
+        ...prevState.bookHotel,
+        ["selectedHotel"]: {
+          id: "selectedHotel",
+          response: imageTitle,
+          graphPlotted: false
+        }
+      }
+    }));
+    triggerNextStep({ value: imageTitle, trigger: "hotelSelected" });
+  };
+
+  const onFileUpload = (
+    file,
+    triggerNextStep,
+    setFileUploadState,
+    setDisableButton
+  ) => {
+    setDisableButton(true);
+    const data = new FormData();
+    data.append("file", file);
+    axios
+      .post("http://localhost:8000/upload", data, {
+        onUploadProgress: ProgressEvent => {
+          setFileUploadState(prevValues => ({
+            ...prevValues,
+            loaded: (ProgressEvent.loaded / ProgressEvent.total) * 100
+          }));
+        }
+      })
+      .then(res => {
+        console.log(res.statusText);
+      });
+    props.setState(prevState => ({
+      ...prevState,
+      bookHotel: {
+        ...prevState.bookHotel,
+        ["document"]: {
+          id: "documentUpload",
+          response: file,
+          graphPlotted: false
+        }
+      }
+    }));
+    triggerNextStep({ trigger: "bookingConfirmed" });
   };
 
   const steps = [
     {
       id: "0",
       message: "Hi Sir, Greetings!..May I help You?",
+      placeholder: "Select from the options",
       trigger: "1"
     },
     {
       id: "1",
+      placeholder: "Select from the options",
       options: [
-        { value: "hotel", label: "Hotel", trigger: "selectHotel" },
-        { value: "holiday", label: "Holiday", trigger: "holiday" }
+        {
+          value: "hotel",
+          label: "Hotel",
+          trigger: ({ value }) => {
+            return mainSelect(value, "selectHotel", "failed");
+          }
+        },
+        {
+          value: "holiday",
+          label: "Holiday",
+          trigger: ({ value }) => {
+            return mainSelect(value, "destination", "failed");
+          }
+        }
       ]
     },
     {
       id: "selectHotel",
       message: "Please choose your desired hotel from below options",
-      trigger: "hotel1"
-      
+      trigger: "hotel1",
+      placeholder: "Select from the options"
     },
     {
       id: "hotel1",
       component: (
         <SelectHotel
-          name={"Casino Hotel"}
-          images={images}
-          setHotelState={props.setHotelState}
-          hotelState={props.hotelState}
+          title={"Suggestion Title"}
+          hotelsArray={hotelsArray}
+          onSelect={onSelect}
         />
       ),
-      trigger: () => {
-        return "hotel2";
-      }
+      waitAction: true,
+      placeholder: "Select from suggested options"
     },
     {
-      id: "hotel2",
-      component: (
-        <SelectHotel
-          name={"The Avenue Regent"}
-          images={images}
-          setHotelState={props.setHotelState}
-          hotelState={props.hotelState}
-        />
-      ),
-      trigger: () => {
-        return "documentRequest";
-      }
+      id: "hotelSelected",
+      asMessage: true,
+      component: <DisplayMessage message={"Your room is reserved."} />,
+      trigger: "documentRequest"
     },
     {
       id: "documentRequest",
-      message: "Please upload an id proof ",
+      delay: 2000,
+      message: "Please upload an id proof to confirm your booking",
       trigger: "uploadDocument"
-      
     },
     {
       id: "uploadDocument",
-      component: <UploadDocument setHotelState={props.setHotelState} />,
-      // trigger: () => {
-      //   return props.hotelState["document"] ? "bookingConfirmed" : "failed";
-      // }
+      placeholder: "Upload document",
+      component: <UploadDocument onFileUpload={onFileUpload} />,
+      waitAction: true
     },
     {
       id: "bookingConfirmed",
-      message: "Thank you, your booking is confirmed"
+      delay: 2000,
+      message: "Thank you, your booking is confirmed!"
     },
     {
-      id: "holiday",
-      message: "Hi Sir, Greetings!.. Do you have a passport?",
+      id: "destination",
+      message: "Choose your destination",
+      trigger: "destinationOptions"
+    },
+    {
+      id: "destinationOptions",
+      placeholder: "Select from the options",
+      options: [
+        {
+          value: "europe",
+          label: "Europe",
+          trigger: ({ value }) => {
+            return mainSelect(value, "passport", "failed");
+          }
+        },
+        {
+          value: "miami",
+          label: "Miami",
+          trigger: ({ value }) => {
+            return mainSelect(value, "passport", "failed");
+          }
+        }
+      ]
+    },
+    {
+      id: "passport",
+      message: "Do you have a passport?",
       trigger: "2"
     },
     {
@@ -172,7 +293,7 @@ const ChatBotContainer = props => {
       user: true,
       validator: value => validate(value),
       trigger: ({ value, target = "gifts" }) => {
-        return trigger(value, "10", "10", target);
+        return trigger(value, "cash", "cash", target);
       }
     },
     {
@@ -199,7 +320,13 @@ const ChatBotContainer = props => {
     }
   ];
 
-  return <ChatBot headerTitle="Tallyx" steps={steps} />;
+  return (
+    <ChatBot
+      botAvatar={tallyxAvatar}
+      headerComponent={<ChatbotHeader />}
+      steps={steps}
+    />
+  );
 };
 
 export default ChatBotContainer;
