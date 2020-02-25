@@ -1,14 +1,27 @@
 import React from "react";
 import ChatBot from "react-simple-chatbot";
-import SelectHotel from "../components/SelectHotel";
 import UploadDocument from "../components/UploadDocument";
 import tallyxAvatar from "../images/tallyx.png";
 import ChatbotHeader from "../components/ChatbotHeader";
-import DisplayMessage from "../components/DisplayMessage";
-import axios from "axios";
 
 const ChatBotContainer = props => {
-  const { hotelsArray } = props;
+  const {
+    setParentNodeState,
+    setChildNodeState,
+    onFileUpload,
+    authorise,
+    verifyKYB,
+    uploadKYB,
+    verifyDirectorId,
+    verifyDirectorUsername,
+    uploadDirectorID,
+    verifyDirectorKYC,
+    sanctionScreen,
+    getCreditRating,
+    getUserDetails,
+    getAvatar
+  } = props;
+
   const validate = value => {
     if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
       return "Please answer yes/no";
@@ -16,306 +29,249 @@ const ChatBotContainer = props => {
     return true;
   };
 
-  const mainSelect = (value, ifYes, ifNo, target) => {
-    if (value.toLowerCase() === "hotel") {
-      props.setState(prevState => ({
-        ...prevState,
-        selectedService: {
-          ...prevState.selectedService,
-          response: value
-        },
-        bookHotel: {
-          ...prevState.bookHotel,
-          selectHotel: {
-            ...prevState.bookHotel.selectHotel,
-            response: "waitingResponse.."
-          },
-          hotels: prevState.bookHotel.hotels.map(el =>
-            el ? { ...el, response: "rendered" } : el
-          )
-        }
-      }));
-      return ifYes;
-    } else if (value.toLowerCase() === "holiday") {
-      props.setState(prevState => ({
-        ...prevState,
-        selectedService: {
-          ...prevState.selectedService,
-          response: value
-        },
-        bookHoliday: {
-          ...prevState.bookHoliday,
-          destinations: {
-            ...prevState.bookHoliday.destinations,
-            response: "checking.."
-          }
-        }
-      }));
-      return ifYes;
-    } else if (
-      value.toLowerCase() === "europe" ||
-      value.toLowerCase() === "miami"
-    ) {
-      props.setState(prevState => ({
-        ...prevState,
-        bookHoliday: {
-          ...prevState.bookHoliday,
-          selectedDestination: {
-            ...prevState.bookHoliday.selectedDestination,
-            response: value
-          }
-        }
-      }));
-      return ifYes;
-    }
-    return ifNo;
-  };
-
-  const trigger = (value, ifYes, ifNo, target) => {
+  const trigger = (value, targetNode, ifYes, ifNo, func) => {
     if (value.toLowerCase() === "yes") {
-      props.setState(prevState => ({
-        ...prevState,
-        bookHoliday: {
-          ...prevState.bookHoliday,
-          [target]: {
-            ...prevState.bookHoliday[target],
-            response: value
-          }
-        }
-      }));
+      if (targetNode.type === "parent") {
+        setParentNodeState(value, targetNode);
+      } else if (targetNode.type === "child") {
+        setChildNodeState(value, targetNode);
+      }
       return ifYes;
     }
     return ifNo;
-  };
-
-  const onSelect = (imageTitle, triggerNextStep) => {
-    props.setState(prevState => ({
-      ...prevState,
-      bookHotel: {
-        ...prevState.bookHotel,
-        ["selectedHotel"]: {
-          id: "selectedHotel",
-          response: imageTitle,
-          graphPlotted: false
-        }
-      }
-    }));
-    triggerNextStep({ value: imageTitle, trigger: "hotelSelected" });
-  };
-
-  const onFileUpload = (
-    file,
-    triggerNextStep,
-    setFileUploadState,
-    setDisableButton
-  ) => {
-    setDisableButton(true);
-    const data = new FormData();
-    data.append("file", file);
-    axios
-      .post("http://localhost:8000/upload", data, {
-        onUploadProgress: ProgressEvent => {
-          setFileUploadState(prevValues => ({
-            ...prevValues,
-            loaded: (ProgressEvent.loaded / ProgressEvent.total) * 100
-          }));
-        }
-      })
-      .then(res => {
-        console.log(res.statusText);
-      });
-    props.setState(prevState => ({
-      ...prevState,
-      bookHotel: {
-        ...prevState.bookHotel,
-        ["document"]: {
-          id: "documentUpload",
-          response: file,
-          graphPlotted: false
-        }
-      }
-    }));
-    triggerNextStep({ trigger: "bookingConfirmed" });
   };
 
   const steps = [
     {
-      id: "0",
-      message: "Hi Sir, Greetings!..May I help You?",
-      placeholder: "Select from the options",
-      trigger: "1"
+      id: "onBoarding",
+      message:
+        "Hello Mark, welcome back! What are you looking for ?..//searching for avatar,asset or toki using ID's",
+      trigger: "userAuth"
     },
     {
-      id: "1",
-      placeholder: "Select from the options",
-      options: [
-        {
-          value: "hotel",
-          label: "Hotel",
-          trigger: ({ value }) => {
-            return mainSelect(value, "selectHotel", "failed");
-          }
-        },
-        {
-          value: "holiday",
-          label: "Holiday",
-          trigger: ({ value }) => {
-            return mainSelect(value, "destination", "failed");
-          }
-        }
-      ]
+      id: "userAuth",
+      user: true,
+      placeholder: "Please enter Identification Number",
+      validator: value => validate(value),
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "onBoarding", type: "parent" },
+          "KYB",
+          "KYB",
+          authorise
+        );
+      }
     },
     {
-      id: "selectHotel",
-      message: "Please choose your desired hotel from below options",
-      trigger: "hotel1",
-      placeholder: "Select from the options"
+      id: "KYB",
+      message: "Global or Indian Business?",
+      trigger: "KYBresponse"
     },
     {
-      id: "hotel1",
+      id: "KYBresponse",
+      user: true,
+      placeholder: "Enter your business identification number",
+      validator: value => validate(value),
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "KYB", type: "parent" },
+          "attachKYB",
+          "KYBresponse",
+          verifyKYB
+        );
+      }
+    },
+    {
+      id: "attachKYB",
+      message: "Please upload the relevant KYB documents",
+      placeholder: "Upload File",
+      trigger: "attachKYBresponse"
+    },
+    {
+      id: "attachKYBresponse",
+      placeholder: "Upload File",
       component: (
-        <SelectHotel
-          title={"Suggestion Title"}
-          hotelsArray={hotelsArray}
-          onSelect={onSelect}
+        <UploadDocument
+          onFileUpload={onFileUpload}
+          targetNode={{
+            type: "child",
+            trigger: "directorVerify",
+            parent: "KYB",
+            id: "attachKYB"
+          }}
+          callBack={uploadKYB}
         />
       ),
-      waitAction: true,
-      placeholder: "Select from suggested options"
-    },
-    {
-      id: "hotelSelected",
-      asMessage: true,
-      component: <DisplayMessage message={"Your room is reserved."} />,
-      trigger: "documentRequest"
-    },
-    {
-      id: "documentRequest",
-      delay: 2000,
-      message: "Please upload an id proof to confirm your booking",
-      trigger: "uploadDocument"
-    },
-    {
-      id: "uploadDocument",
-      placeholder: "Upload document",
-      component: <UploadDocument onFileUpload={onFileUpload} />,
       waitAction: true
     },
     {
-      id: "bookingConfirmed",
-      delay: 2000,
-      message: "Thank you, your booking is confirmed!"
+      id: "directorVerify",
+      message: "Please verify director",
+      trigger: "directorVerifyResponse"
     },
     {
-      id: "destination",
-      message: "Choose your destination",
-      trigger: "destinationOptions"
-    },
-    {
-      id: "destinationOptions",
-      placeholder: "Select from the options",
-      options: [
-        {
-          value: "europe",
-          label: "Europe",
-          trigger: ({ value }) => {
-            return mainSelect(value, "passport", "failed");
-          }
-        },
-        {
-          value: "miami",
-          label: "Miami",
-          trigger: ({ value }) => {
-            return mainSelect(value, "passport", "failed");
-          }
-        }
-      ]
-    },
-    {
-      id: "passport",
-      message: "Do you have a passport?",
-      trigger: "2"
-    },
-    {
-      id: "2",
+      id: "directorVerifyResponse",
       user: true,
+      placeholder: "Enter your ID number for verification",
       validator: value => validate(value),
-      trigger: ({ value, target = "passport" }) => {
-        return trigger(value, "ticket", "failed", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "directorVerify", type: "parent" },
+          "directorUserVerify",
+          "directorVerifyResponse",
+          verifyDirectorId
+        );
       }
     },
     {
-      id: "ticket",
-      message: "Have you got a ticket?",
-      trigger: "3"
+      id: "directorUserVerify",
+      message: "Please enter your email id or username",
+      trigger: "directorUserVerifyResponse"
     },
     {
-      id: "3",
+      id: "directorUserVerifyResponse",
       user: true,
+      placeholder: "Please enter your email id or username",
       validator: value => validate(value),
-      trigger: ({ value, target = "ticket" }) => {
-        return trigger(value, "insurance", "insurance", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "directorUserVerify", type: "parent" },
+          "attachDirectorID",
+          "directorUserVerifyResponse",
+          verifyDirectorUsername
+        );
       }
     },
     {
-      id: "insurance",
-      message: "Need Insurance?",
-      trigger: "5"
+      id: "attachDirectorID",
+      message: "Please upload your Director ID",
+      placeholder: "Upload File",
+      trigger: "attachDirectorIDResponse"
     },
     {
-      id: "5",
+      id: "attachDirectorIDResponse",
+      component: (
+        <UploadDocument
+          onFileUpload={onFileUpload}
+          targetNode={{
+            type: "child",
+            trigger: "directorKYC",
+            id: "attachDirectorID",
+            parent: "directorUserVerify"
+          }}
+          callBack={uploadDirectorID}
+        />
+      ),
+      waitAction: true
+    },
+    {
+      id: "directorKYC",
+      message: "Please upload your KYC documents",
+      trigger: "directorKYCResponse"
+    },
+    {
+      id: "directorKYCResponse",
+      component: (
+        <UploadDocument
+          onFileUpload={onFileUpload}
+          targetNode={{
+            type: "child",
+            trigger: "sanction",
+            id: "directorKYC",
+            parent: "directorUserVerify"
+          }}
+          callBack={verifyDirectorKYC}
+        />
+      ),
+      waitAction: true
+    },
+    {
+      id: "sanction",
+      message: "Sanction Screening in progress",
+      trigger: "sanctionResponse"
+    },
+    {
+      id: "sanctionResponse",
       user: true,
+      placeholder: "Screening...",
       validator: value => validate(value),
-      trigger: ({ value, target = "insurance" }) => {
-        return trigger(value, "visa", "visa", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "sanction", type: "parent" },
+          "creditRating",
+          "sanctionResponse",
+          sanctionScreen
+        );
       }
     },
     {
-      id: "visa",
-      message: "Get your Visa in 24 hours!!..Get it?",
-      trigger: "7"
+      id: "creditRating",
+      message: "Checking your credit rating...",
+      trigger: "creditRatingResponse"
     },
     {
-      id: "7",
+      id: "creditRatingResponse",
       user: true,
+      placeholder: "retrieving credit score...",
       validator: value => validate(value),
-      trigger: ({ value, target = "visa" }) => {
-        return trigger(value, "gifts", "failed", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "creditRating", type: "parent" },
+          "sponserUser",
+          "creditRatingResponse",
+          getCreditRating
+        );
       }
     },
     {
-      id: "gifts",
-      message: "Buy Gifts?",
-      trigger: "9"
+      id: "sponserUser",
+      message: "Welcome User!..Want to check out your newly created Avatar?",
+      trigger: "sponserUserResponse"
     },
     {
-      id: "9",
+      id: "sponserUserResponse",
       user: true,
+      placeholder: "Please make a note of the user details.",
       validator: value => validate(value),
-      trigger: ({ value, target = "gifts" }) => {
-        return trigger(value, "cash", "cash", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "sponserUser", type: "parent" },
+          "createAvatar",
+          "sponserUserResponse",
+          getUserDetails
+        );
       }
     },
     {
-      id: "cash",
-      message: "Need some cash?",
-      trigger: "11"
+      id: "createAvatar",
+      message: "Avatar created!",
+      trigger: "createAvatarResponse"
     },
     {
-      id: "11",
+      id: "createAvatarResponse",
       user: true,
+      placeholder: "Please make a note of the user details.",
       validator: value => validate(value),
-      trigger: ({ value, target = "foreignExchange" }) => {
-        return trigger(value, "success", "success", target);
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "createAvatar", type: "parent" },
+          "end",
+          "createAvatarResponse",
+          getAvatar
+        );
       }
     },
     {
-      id: "success",
-      message: "Bon voyage!!"
-    },
-    {
-      id: "failed",
-      message: "Thank you!..would love to see you back!",
+      id: "end",
+      message: "Thank you!",
       end: true
     }
   ];

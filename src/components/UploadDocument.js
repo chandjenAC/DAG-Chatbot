@@ -3,12 +3,12 @@ import upload from "../images/upload.png";
 import { Progress } from "reactstrap";
 
 const UploadDocument = props => {
-  const { onFileUpload } = props;
-  const [state, setState] = useState(null);
+  const { onFileUpload, targetNode } = props;
+  const [documentState, setDocumentState] = useState(null);
   const [disableButton, setDisableButton] = useState(false);
 
   const onFileSelect = event => {
-    setState({
+    setDocumentState({
       selectedFile: event.target.files[0],
       loaded: 0
     });
@@ -26,7 +26,7 @@ const UploadDocument = props => {
       }}
     >
       <img src={upload} alt="chatbot-header-tile" height="35px" width="35px" />
-      {!state ? (
+      {!documentState ? (
         <input
           style={{
             margin: "0px 0px 0px 0px",
@@ -39,7 +39,7 @@ const UploadDocument = props => {
         />
       ) : (
         <p style={{ color: "black", fontSize: "12px" }}>
-          .\{state.selectedFile.name}
+          .\{documentState.selectedFile.name}
         </p>
       )}
       {disableButton ? (
@@ -47,13 +47,14 @@ const UploadDocument = props => {
           <Progress
             max="100"
             color="success"
-            value={state ? state.loaded : null}
+            value={documentState ? documentState.loaded : null}
           >
-            {Math.round(state ? state.loaded : null, 2)}%
+            {Math.round(documentState ? documentState.loaded : null, 2)}%
           </Progress>
         </div>
       ) : (
         <button
+          disabled={!documentState}
           style={{
             borderRadius: "5px",
             background: "#282c34",
@@ -63,9 +64,10 @@ const UploadDocument = props => {
           }}
           onClick={() => {
             onFileUpload(
-              state.selectedFile,
+              documentState.selectedFile,
               props.triggerNextStep,
-              setState,
+              targetNode,
+              setDocumentState,
               setDisableButton
             );
           }}

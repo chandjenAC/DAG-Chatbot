@@ -2,111 +2,154 @@ import React, { useState } from "react";
 import "./App.css";
 import ChatBotContainer from "./containers/ChatBotContainer";
 import DAGraphContainer from "./containers/DAGraphContainer";
-import image1 from "./images/1.jpg";
-import image2 from "./images/2.jpg";
-import image3 from "./images/3.jpg";
-import image4 from "./images/4.jpg";
-import image5 from "./images/5.jpg";
-import image6 from "./images/6.jpg";
-import image7 from "./images/7.jpg";
-import image8 from "./images/8.jpg";
-
-const hotelsArray = [
-  { image: image1, title: "The Avenue Regent" },
-  { image: image2, title: "Casino Hotel" },
-  { image: image3, title: "Mezzo" },
-  { image: image4, title: "Crown Plaza" },
-  { image: image5, title: "Grand Hyatt" },
-  { image: image6, title: "Ramada" },
-  { image: image7, title: "SAJ Earth Resort" },
-  { image: image8, title: "Marriot" }
-];
+import axios from "axios";
 
 const App = () => {
   const [state, setState] = useState({
-    selectedService: {
-      //starting node plotted by default. Every object is a node.
-      id: "selectService",
-      response: null, //response is the user response from chatBot
-      graphPlotted: true //  is a function of user response.This is the root node plotted by default in DAGraphContainer. For rest of the state objects if graphPlotted is true, corresponding node will be plotted with related edges.
+    onBoarding: {
+      response: null,
+      graphPlotted: false
     },
-    bookHotel: {
-      id: "bookHotel",
-      selectHotel: {
-        id: "selectHotel",
-        response: null,
-        graphPlotted: false
-      },
-      hotels: [
-        { id: "The Avenue Regent", response: false, graphPlotted: false },
-        { id: "Casino Hotel", response: false, graphPlotted: false },
-        { id: "Mezzo", response: false, graphPlotted: false },
-        { id: "Crown Plaza", response: false, graphPlotted: false },
-        { id: "Grand Hyatt", response: false, graphPlotted: false },
-        { id: "Ramada", response: false, graphPlotted: false },
-        { id: "SAJ Earth Resort", response: false, graphPlotted: false },
-        { id: "Marriot", response: false, graphPlotted: false }
-      ],
-      selectedHotel: {
-        id: "selectedHotel",
-        response: null,
-        graphPlotted: false
-      },
-      document: {
-        id: "documentUpload",
-        response_: null,
-        graphPlotted: false
-      },
-      confirmed: {
-        id: "confirm",
+    KYB: {
+      response: null,
+      graphPlotted: false,
+      attachKYB: {
         response: null,
         graphPlotted: false
       }
     },
-    bookHoliday: {
-      id: "bookHoliday",
-      destinations: {
-        id: "destinations",
+    directorVerify: {
+      response: null,
+      graphPlotted: false
+    },
+    directorUserVerify: {
+      response: null,
+      graphPlotted: false,
+      attachDirectorID: {
         response: null,
         graphPlotted: false
       },
-      selectedDestination: {
-        id: "selectedDestination",
-        response: null,
-        graphPlotted: false
-      },
-      passport: {
-        id: "passportCheck",
-        response: null,
-        graphPlotted: false
-      },
-      ticket: {
-        id: "ticket",
-        response: null,
-        graphPlotted: false
-      },
-      insurance: {
-        id: "insurance",
-        response: null,
-        graphPlotted: false
-      },
-      visa: {
-        id: "visa",
-        response: null,
-        graphPlotted: false
-      },
-      gifts: {
-        id: "gifts",
-        response: null,
-        graphPlotted: false
-      },
-      foreignExchange: {
-        id: "foreignExchange",
+      directorKYC: {
         response: null,
         graphPlotted: false
       }
+    },
+    sanction: {
+      response: null,
+      graphPlotted: false
+    },
+    creditRating: {
+      response: null,
+      graphPlotted: false
+    },
+    sponserUser: {
+      response: null,
+      graphPlotted: false
+    },
+    createAvatar: {
+      response: null,
+      graphPlotted: false
     }
   });
+
+  const setParentNodeState = (value, targetNode) => {
+    setState(prevState => ({
+      ...prevState,
+      [targetNode.id]: {
+        ...prevState[targetNode.id],
+        response: value
+      }
+    }));
+  };
+
+  const setChildNodeState = (value, targetNode) => {
+    let parent = targetNode.parent;
+    let child = targetNode.id;
+    setState(prevState => ({
+      ...prevState,
+      [parent]: {
+        ...prevState[parent],
+        [child]: {
+          ...prevState[parent][child],
+          response: value
+        }
+      }
+    }));
+  };
+
+  const onFileUpload = (
+    file,
+    triggerNextStep,
+    targetNode,
+    setFileUploadState,
+    setDisableButton
+  ) => {
+    setDisableButton(true);
+    const data = new FormData();
+    data.append("file", file);
+    axios
+      .post("http://localhost:8000/upload", data, {
+        onUploadProgress: ProgressEvent => {
+          setFileUploadState(prevValues => ({
+            ...prevValues,
+            loaded: (ProgressEvent.loaded / ProgressEvent.total) * 100
+          }));
+        }
+      })
+      .then(res => {
+        console.log(res.statusText);
+      });
+    if (targetNode.type === "parent") {
+      setParentNodeState(file, targetNode);
+    } else if (targetNode.type === "child") {
+      setChildNodeState(file, targetNode);
+    }
+    triggerNextStep({ trigger: targetNode.trigger });
+  };
+
+  const authorise = () => {
+    console.log("Authorizing ....................");
+  };
+
+  const verifyKYB = () => {
+    console.log("KYB Verifying ....................");
+  };
+
+  const uploadKYB = () => {
+    console.log("KYB Uploading ....................");
+  };
+
+  const verifyDirectorId = () => {
+    console.log("Verifying Director ID ....................");
+  };
+
+  const verifyDirectorUsername = () => {
+    console.log("Verifying Director username ....................");
+  };
+
+  const uploadDirectorID = () => {
+    console.log("Uploading Director ID ....................");
+  };
+
+  const verifyDirectorKYC = () => {
+    console.log("Verifying Director KYC ....................");
+  };
+
+  const sanctionScreen = () => {
+    console.log("Sanction screening in progress ....................");
+  };
+
+  const getCreditRating = () => {
+    console.log("Retrieving credit rating ....................");
+  };
+
+  const getUserDetails = () => {
+    console.log("Retrieving credit rating ....................");
+  };
+  const getAvatar = () => {
+    console.log("Retrieving credit rating ....................");
+  };
+
 
   return (
     <div className="App">
@@ -134,10 +177,21 @@ const App = () => {
             }}
           >
             <ChatBotContainer
-              holidayState={state.bookHoliday}
-              hotelState={state.bookHotel}
-              setState={setState}
-              hotelsArray={hotelsArray}
+              state={state}
+              setParentNodeState={setParentNodeState}
+              setChildNodeState={setChildNodeState}
+              onFileUpload={onFileUpload}
+              authorise={authorise}
+              verifyKYB={verifyKYB}
+              uploadKYB={uploadKYB}
+              verifyDirectorId={verifyDirectorId}
+              verifyDirectorUsername={verifyDirectorUsername}
+              uploadDirectorID={uploadDirectorID}
+              verifyDirectorKYC={verifyDirectorKYC}
+              sanctionScreen={sanctionScreen}
+              getCreditRating={getCreditRating}
+              getUserDetails={getUserDetails}
+              getAvatar={getAvatar}
             />
           </div>
         </div>
@@ -162,10 +216,10 @@ const App = () => {
               Graph View
             </p>
             <DAGraphContainer
-              holidayState={state.bookHoliday}
-              setState={setState}
-              hotelState={state.bookHotel}
               state={state}
+              setParentNodeState={setParentNodeState}
+              setChildNodeState={setChildNodeState}
+              setState={setState} // inside useEffect can remove if not required ...now testing
             />
           </div>
         </div>
@@ -175,3 +229,256 @@ const App = () => {
 };
 
 export default App;
+
+// import image1 from "./images/1.jpg";
+// import image2 from "./images/2.jpg";
+// import image3 from "./images/3.jpg";
+// import image4 from "./images/4.jpg";
+// import image5 from "./images/5.jpg";
+// import image6 from "./images/6.jpg";
+// import image7 from "./images/7.jpg";
+// import image8 from "./images/8.jpg";
+
+// const hotelsArray = [
+//   { image: image1, title: "The Avenue Regent" },
+//   { image: image2, title: "Casino Hotel" },
+//   { image: image3, title: "Mezzo" },
+//   { image: image4, title: "Crown Plaza" },
+//   { image: image5, title: "Grand Hyatt" },
+//   { image: image6, title: "Ramada" },
+//   { image: image7, title: "SAJ Earth Resort" },
+//   { image: image8, title: "Marriot" }
+// ];
+
+// onBoarding: {
+//   response: null,
+//   graphPlotted: true,
+//   userAuth: {
+//     graphPlotted: false
+//   }
+// },
+// KYB: {
+//   response: null,
+//   graphPlotted: true,
+//   globalID: {
+//     graphPlotted: false
+//   },
+//   indianID: {
+//     graphPlotted: false
+//   },
+//   attachKYB: {
+//     response: null,
+//     graphPlotted: false,
+//     browserUpload: {
+//       graphPlotted: false
+//     },
+//     cloudUpload: {
+//       graphPlotted: false
+//     },
+//     emailAttach: {
+//       graphPlotted: false
+//     }
+//   }
+// },
+// directorVerify: {
+//   response: null,
+//   graphPlotted: true,
+//   globalTrulioo: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   indianAadhar: {
+//     response: null,
+//     graphPlotted: false
+//   }
+// },
+// directorUserVerify: {
+//   response: null,
+//   graphPlotted: true,
+//   globalEmail: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   globalMobile: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   attachDirectorID: {
+//     response: null,
+//     graphPlotted: false,
+//     cloudUpload: {
+//       response: null,
+//       graphPlotted: false
+//     },
+//     emailAttach: {
+//       response: null,
+//       graphPlotted: false
+//     }
+//   },
+//   directorKYC: {
+//     response: null,
+//     graphPlotted: false,
+//     globalTrulioo: {
+//       response: null,
+//       graphPlotted: false
+//     },
+//     indianDL: {
+//       response: null,
+//       graphPlotted: false
+//     },
+//     aadhar: {
+//       response: null,
+//       graphPlotted: false
+//     },
+//     indianPassport: {
+//       response: null,
+//       graphPlotted: false
+//     }
+//   }
+// },
+// sanction: {
+//   response: null,
+//   graphPlotted: true,
+//   globalScan: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   alert: {
+//     response: null,
+//     graphPlotted: false
+//   }
+// },
+// creditRating: {
+//   response: null,
+//   graphPlotted: true,
+//   globalBusiness: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   globalIndividual: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   indianCommercial: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   indianIndividual: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   alert: {
+//     response: null,
+//     graphPlotted: false
+//   }
+// },
+// sponserUser: {
+//   response: null,
+//   graphPlotted: true,
+//   review: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   authorise: {
+//     response: null,
+//     graphPlotted: false
+//   }
+// },
+// createAvatar: {
+//   response: null,
+//   graphPlotted: true,
+//   compliance: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   reputation: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   avatarQRCode: {
+//     response: null,
+//     graphPlotted: false
+//   },
+//   token: {
+//     response: null,
+//     graphPlotted: false
+//   }
+// }
+
+// [
+//   {
+//     onBoarding: {
+//       id: "1.0",
+//       grandParentText: "OnBoarding ID Input",
+//       response: null,
+//       graphPlotted: true,
+//       userAuth: {
+//         id: "1.0.1",
+//         grandParentText: "OnBoarding ID Input",
+//         response: null,
+//         graphPlotted: false
+
+//       },
+//     },
+//     KYB: {
+//       id: "1.0",
+//       grandParentText: "KYB Condition",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     attachKYB: {
+//       id: "1.0",
+//       grandParentText: "Attach KYB Documents,
+//       response: null,
+//       graphPlotted: false
+//     },
+//     directorVerify: {
+//       id: "1.0",
+//       grandParentText: "Director Verification",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     directorUserVerify: {
+//       id: "1.0",
+//       grandParentText: "Director User Verification",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     attachDirectorID: {
+//       id: "1.0",
+//       grandParentText: "Attach Director ID",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     directorKYC: {
+//       id: "1.0",
+//       grandParentText: "Director KYC",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     sanction: {
+//       id: "1.0",
+//       grandParentText: "Sanction Screening",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     creditRating: {
+//       id: "1.0",
+//       grandParentText: "Credit Rating",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     sponserUser: {
+//       id: "1.0",
+//       grandParentText: "Sponsor User",
+//       response: null,
+//       graphPlotted: false
+//     },
+//     createAvatar: {
+//       id: "1.0",
+//       grandParentText: "Create Avatar",
+//       response: null,
+//       graphPlotted: false
+//     }
+//   }
+// ]
