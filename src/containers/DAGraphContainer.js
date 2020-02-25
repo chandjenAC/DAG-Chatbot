@@ -18,7 +18,7 @@ import {
 } from "../data/nodeAndEdgeData";
 
 const DAGraphContainer = props => {
-  const { state, setState, setParentNodeState, setChildNodeState } = props;
+  const { state, setState } = props;
 
   const graphView = React.createRef(GraphView);
 

@@ -45,7 +45,7 @@ const ChatBotContainer = props => {
     {
       id: "onBoarding",
       message:
-        "Hello Mark, welcome back! What are you looking for ?..//searching for avatar,asset or toki using ID's",
+        "Hello Mark, welcome back! What are you looking for ?..search for avatar,asset or toki by ID",
       trigger: "userAuth"
     },
     {
