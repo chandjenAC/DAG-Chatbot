@@ -4,51 +4,112 @@ import ChatBotContainer from "./containers/ChatBotContainer";
 import DAGraphContainer from "./containers/DAGraphContainer";
 import axios from "axios";
 
+const sampleState1 = {
+  onBoarding: {
+    response: true
+  },
+  KYB: {
+    response: true,
+    attachKYB: {
+      response: true
+    }
+  },
+  directorVerify: {
+    response: true
+  },
+  directorUserVerify: {
+    response: null,
+    attachDirectorID: {
+      response: null
+    },
+    directorKYC: {
+      response: null
+    }
+  },
+  sanction: {
+    response: null
+  },
+  creditRating: {
+    response: null
+  },
+  sponserUser: {
+    response: null
+  },
+  createAvatar: {
+    response: null
+  }
+};
+
+const sampleState2 = {
+  onBoarding: {
+    response: true
+  },
+  KYB: {
+    response: true,
+    attachKYB: {
+      response: true
+    }
+  },
+  directorVerify: {
+    response: true
+  },
+  directorUserVerify: {
+    response: true,
+    attachDirectorID: {
+      response: true
+    },
+    directorKYC: {
+      response: true
+    }
+  },
+  sanction: {
+    response: true
+  },
+  creditRating: {
+    response: true
+  },
+  sponserUser: {
+    response: true
+  },
+  createAvatar: {
+    response: true
+  }
+};
+
 const App = () => {
   const [state, setState] = useState({
     onBoarding: {
-      response: null,
-      graphPlotted: false
+      response: null
     },
     KYB: {
       response: null,
-      graphPlotted: false,
       attachKYB: {
-        response: null,
-        graphPlotted: false
+        response: null
       }
     },
     directorVerify: {
-      response: null,
-      graphPlotted: false
+      response: null
     },
     directorUserVerify: {
       response: null,
-      graphPlotted: false,
       attachDirectorID: {
-        response: null,
-        graphPlotted: false
+        response: null
       },
       directorKYC: {
-        response: null,
-        graphPlotted: false
+        response: null
       }
     },
     sanction: {
-      response: null,
-      graphPlotted: false
+      response: null
     },
     creditRating: {
-      response: null,
-      graphPlotted: false
+      response: null
     },
     sponserUser: {
-      response: null,
-      graphPlotted: false
+      response: null
     },
     createAvatar: {
-      response: null,
-      graphPlotted: false
+      response: null
     }
   });
 
@@ -191,6 +252,9 @@ const App = () => {
               getCreditRating={getCreditRating}
               getUserDetails={getUserDetails}
               getAvatar={getAvatar}
+              setState={setState} // for authorize ID function
+              sampleState1={sampleState1} // for authorize ID function
+              sampleState2={sampleState2} // for authorize ID function
             />
           </div>
         </div>

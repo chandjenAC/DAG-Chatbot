@@ -1,70 +1,195 @@
-import React from "react";
-import ChatBot from "react-simple-chatbot";
-import UploadDocument from "../components/UploadDocument";
-import tallyxAvatar from "../images/tallyx.png";
-import ChatbotHeader from "../components/ChatbotHeader";
-
-const ChatBotContainer = props => {
-  const {
-    setParentNodeState,
-    setChildNodeState,
-    onFileUpload,
-    authorise,
-    verifyKYB,
-    uploadKYB,
-    verifyDirectorId,
-    verifyDirectorUsername,
-    uploadDirectorID,
-    verifyDirectorKYC,
-    sanctionScreen,
-    getCreditRating,
-    getUserDetails,
-    getAvatar
-  } = props;
-
-  const validate = value => {
-    if (value.toLowerCase() !== "yes" && value.toLowerCase() !== "no") {
-      return "Please answer yes/no";
+onBoarding: {
+    response: null
+  },
+  KYB: {
+    response: null,
+    attachKYB: {
+      response: null
     }
-    return true;
-  };
+  },
+  directorVerify: {
+    response: null
+  },
+  directorUserVerify: {
+    response: null,
+    attachDirectorID: {
+      response: null
+    },
+    directorKYC: {
+      response: null
+    }
+  },
+  sanction: {
+    response: null
+  },
+  creditRating: {
+    response: null
+  },
+  sponserUser: {
+    response: null
+  },
+  createAvatar: {
+    response: null
+  }
 
-  const trigger = (value, targetNode, ifYes, ifNo, func) => {
-    if (value) {
-      if (targetNode.type === "parent") {
-        setParentNodeState(value, targetNode);
-      } else if (targetNode.type === "child") {
-        setChildNodeState(value, targetNode);
+  
+  const renderNode = (ref, data, id, selected, hover, nodeProps) => {
+ 
+    if (
+      [
+        "onBoarding",
+        "KYB",
+        "directorVerify",
+        "directorUserVerify",
+        "sanction",
+        "creditRating",
+        "sponserUser",
+        "createAvatar"
+      ].includes(id)
+    ) {
+      console.log("inside first condition", props.state[id]);
+      if (props.state[id].response) {
+        console.log("inside second condition where it should be");
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeCompleted"}
+              y={-100}
+            />
+          </g>
+        );
+      } else {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeIdeal"}
+              y={-100}
+            />
+          </g>
+        );
       }
-      return ifYes;
-    }
-    return ifNo;
-  };
-
-  const authoriseID = (value, targetNode, ifYes, ifNo, func) => {
-    if (value.toLowerCase() === "123") {
-      //user who hasn't completed onboarding process
-      props.setState(props.sampleState1);
-      return "continueOnBoarding";
-    } else if (value.toLowerCase() === "456") {
-      //user who has completed onboarding and now wanna manage policy
-      props.setState(props.sampleState2);
-      return "managePolicies";
-    }
-    return "initiateOnBoarding";
-  };
-
-  const findLastStep = () => {
-    let step;
-    for (let key in props.sampleState1) {
-      console.log(props.sampleState1[key]);
-      if (props.sampleState1[key].response !== null) {
-        step = key;
+    } else if (id === "attachKYB") {
+      if (props.state.KYB.attachKYB.response) {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeCompleted"}
+              y={-100}
+            />
+          </g>
+        );
+      } else {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeIdeal"}
+              y={-100}
+            />
+          </g>
+        );
       }
+    } else if (id === "attachDirectorID") {
+      if (props.state.directorUserVerify.attachDirectorID.response) {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeCompleted"}
+              y={-100}
+            />
+          </g>
+        );
+      } else {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeIdeal"}
+              y={-100}
+            />
+          </g>
+        );
+      }
+    } else if (id === "directorKYC") {
+      if (props.state.directorUserVerify.directorKYC.response) {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeCompleted"}
+              y={-100}
+            />
+          </g>
+        );
+      } else {
+        return (
+          <g style={{ cursor: "pointer" }}>
+            <use
+              className="node"
+              height={200}
+              width={200}
+              x={-100}
+              xlinkHref={"#routerNodeIdeal"}
+              y={-100}
+            />
+          </g>
+        );
+      }
+    } else if (id === "alert") {
+      return (
+        <g style={{ cursor: "pointer" }}>
+          <use
+            className="node"
+            height={200}
+            width={200}
+            x={-100}
+            xlinkHref={"#eventHandlerNodeIdeal"}
+            y={-146}
+          />
+        </g>
+      );
+    } else {
+      return (
+        <g style={{ cursor: "pointer" }}>
+          <use
+            className="node"
+            height={200}
+            width={200}
+            x={-100}
+            xlinkHref={"#gatewayNodeIdeal"}
+            y={-110}
+          />
+        </g>
+      );
     }
-    console.log("this is the last stpe", step);
-    return step
   };
+
+
 
   const steps = [
     {
@@ -120,21 +245,18 @@ const ChatBotContainer = props => {
     },
     {
       id: "continueOnBoardingResponse",
-      placeholder: "Please select from the options.",
-      options: [
-        {
-          value: "yes",
-          label: "Yes",
-          trigger: ({ value }) => {
-            return findLastStep()
-          }
-        },
-        {
-          value: "no",
-          label: "No",
-          trigger: "end"
-        }
-      ]
+      user: true,
+      placeholder: "Enter your business identification number",
+      validator: value => validate(value),
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "KYB", type: "parent" },
+          "attachKYB",
+          "KYBresponse",
+          verifyKYB
+        );
+      }
     },
     {
       id: "managePolicies",
@@ -189,6 +311,7 @@ const ChatBotContainer = props => {
       id: "KYBresponse",
       user: true,
       placeholder: "Enter your business identification number",
+      // validator: value => validate(value),
       trigger: ({ value }) => {
         return trigger(
           value,
@@ -224,13 +347,14 @@ const ChatBotContainer = props => {
     },
     {
       id: "directorVerify",
-      message: "Please verify user",
+      message: "Please verify director",
       trigger: "directorVerifyResponse"
     },
     {
       id: "directorVerifyResponse",
       user: true,
       placeholder: "Enter your ID number for verification",
+      // validator: value => validate(value),
       trigger: ({ value }) => {
         return trigger(
           value,
@@ -295,7 +419,7 @@ const ChatBotContainer = props => {
           onFileUpload={onFileUpload}
           targetNode={{
             type: "child",
-            trigger: "sponserUser",
+            trigger: "sanction",
             id: "directorKYC",
             parent: "directorUserVerify"
           }}
@@ -304,46 +428,46 @@ const ChatBotContainer = props => {
       ),
       waitAction: true
     },
-    // {
-    //   id: "sanction",
-    //   message: "Sanction Screening in progress",
-    //   trigger: "sanctionResponse"
-    // },
-    // {
-    //   id: "sanctionResponse",
-    //   user: true,
-    //   placeholder: "Screening...",
-    //   // validator: value => validate(value),
-    //   trigger: ({ value }) => {
-    //     return trigger(
-    //       value,
-    //       { id: "sanction", type: "parent" },
-    //       "creditRating",
-    //       "sanctionResponse",
-    //       sanctionScreen
-    //     );
-    //   }
-    // },
-    // {
-    //   id: "creditRating",
-    //   message: "Checking your credit rating...",
-    //   trigger: "creditRatingResponse"
-    // },
-    // {
-    //   id: "creditRatingResponse",
-    //   user: true,
-    //   placeholder: "retrieving credit score...",
-    //   // validator: value => validate(value),
-    //   trigger: ({ value }) => {
-    //     return trigger(
-    //       value,
-    //       { id: "creditRating", type: "parent" },
-    //       "sponserUser",
-    //       "creditRatingResponse",
-    //       getCreditRating
-    //     );
-    //   }
-    // },
+    {
+      id: "sanction",
+      message: "Sanction Screening in progress",
+      trigger: "sanctionResponse"
+    },
+    {
+      id: "sanctionResponse",
+      user: true,
+      placeholder: "Screening...",
+      // validator: value => validate(value),
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "sanction", type: "parent" },
+          "creditRating",
+          "sanctionResponse",
+          sanctionScreen
+        );
+      }
+    },
+    {
+      id: "creditRating",
+      message: "Checking your credit rating...",
+      trigger: "creditRatingResponse"
+    },
+    {
+      id: "creditRatingResponse",
+      user: true,
+      placeholder: "retrieving credit score...",
+      // validator: value => validate(value),
+      trigger: ({ value }) => {
+        return trigger(
+          value,
+          { id: "creditRating", type: "parent" },
+          "sponserUser",
+          "creditRatingResponse",
+          getCreditRating
+        );
+      }
+    },
     {
       id: "sponserUser",
       message: "Welcome User!..Want to check out your newly created Avatar?",
@@ -353,7 +477,7 @@ const ChatBotContainer = props => {
       id: "sponserUserResponse",
       user: true,
       placeholder: "Please make a note of the user details.",
-      // validator: value => validate(value),
+      validator: value => validate(value),
       trigger: ({ value }) => {
         return trigger(
           value,
@@ -373,7 +497,7 @@ const ChatBotContainer = props => {
       id: "createAvatarResponse",
       user: true,
       placeholder: "Please make a note of the user details.",
-      // validator: value => validate(value),
+      validator: value => validate(value),
       trigger: ({ value }) => {
         return trigger(
           value,
@@ -390,14 +514,3 @@ const ChatBotContainer = props => {
       end: true
     }
   ];
-
-  return (
-    <ChatBot
-      botAvatar={tallyxAvatar}
-      headerComponent={<ChatbotHeader />}
-      steps={steps}
-    />
-  );
-};
-
-export default ChatBotContainer;
